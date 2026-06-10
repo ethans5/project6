@@ -1,0 +1,17 @@
+{
+  "name": "jsonplaceholder-clone-api",
+  "version": "1.0.0",
+  "description": "A simple Express REST API connected to MySQL",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --env-file=.env server.js",
+    "dev": "node --env-file=.env --watch server.js",
+    "check": "node --check server.js && node --check src/app.js",
+    "test": "node --test --test-concurrency=1 test/*.test.js",
+    "test:coverage": "node --test --test-concurrency=1 --experimental-test-coverage test/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "mysql2": "^3.12.0"
+  }
+}
