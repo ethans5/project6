@@ -11,6 +11,8 @@
     "test:coverage": "node --test --test-concurrency=1 --experimental-test-coverage test/*.test.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
     "express": "^4.21.2",
     "mysql2": "^3.12.0"
   }

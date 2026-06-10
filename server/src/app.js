@@ -1,4 +1,6 @@
 const express = require('express');
+const cors = require('cors');
+const authController = require('./controllers/authController');
 const usersRoutes = require('./routes/usersRoutes');
 const postsRoutes = require('./routes/postsRoutes');
 const commentsRoutes = require('./routes/commentsRoutes');
@@ -7,6 +9,7 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -23,6 +26,9 @@ app.use('/users', usersRoutes);
 app.use('/posts', postsRoutes);
 app.use('/comments', commentsRoutes);
 app.use('/todos', todosRoutes);
+
+app.post('/register', authController.register);
+app.post('/login', authController.login);
 
 app.use((req, res) => {
   res.status(404).json({

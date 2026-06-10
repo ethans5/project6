@@ -16,9 +16,10 @@ yarn-error.log*
 *~
 .DS_Store
 
-# Logs
+# Logs and Tests
 logs/
 *.log
+coverage/
 
 # OS
 .DS_Store
