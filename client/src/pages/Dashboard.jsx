@@ -1,93 +1,241 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Dashboard.css';
 
+const API_URL = 'http://localhost:3000';
+
+async function apiRequest(path, options) {
+  const response = await fetch(`${API_URL}${path}`, options);
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.message || 'Request failed');
+  }
+
+  return result.data;
+}
+
 const Dashboard = () => {
-  const [user, setUser] = useState(null);
+  const [user] = useState(() => {
+    const storedUser = localStorage.getItem('currentUser');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
   const [showProfile, setShowProfile] = useState(false);
+  const [showTodos, setShowTodos] = useState(false);
+  const [todos, setTodos] = useState([]);
+  const [newTitle, setNewTitle] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editingTitle, setEditingTitle] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // The ProtectedRoute already ensures this exists, but we fetch it to display
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+  const loadTodos = async (activeUser = user) => {
+    if (!activeUser) return;
+
+    setIsLoading(true);
+    setError('');
+    try {
+      const data = await apiRequest(`/todos?userId=${activeUser.id}`);
+      setTodos(data);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  };
+
+  const handleShowTodos = () => {
+    setShowTodos(true);
+    loadTodos();
+  };
+
+  const handleAddTodo = async (event) => {
+    event.preventDefault();
+    if (!newTitle.trim()) return;
+
+    setError('');
+    try {
+      await apiRequest('/todos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          title: newTitle,
+          completed: false
+        })
+      });
+      setNewTitle('');
+      await loadTodos();
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+  };
+
+  const handleCompletedChange = async (todo) => {
+    setError('');
+    try {
+      await apiRequest(`/todos/${todo.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ completed: !todo.completed })
+      });
+      await loadTodos();
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+  };
+
+  const startEditing = (todo) => {
+    setEditingId(todo.id);
+    setEditingTitle(todo.title);
+  };
+
+  const handleEditTodo = async (event, id) => {
+    event.preventDefault();
+    if (!editingTitle.trim()) return;
+
+    setError('');
+    try {
+      await apiRequest(`/todos/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: editingTitle })
+      });
+      setEditingId(null);
+      setEditingTitle('');
+      await loadTodos();
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+  };
+
+  const handleDeleteTodo = async (id) => {
+    setError('');
+    try {
+      await apiRequest(`/todos/${id}`, { method: 'DELETE' });
+      await loadTodos();
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('currentUser');
     navigate('/login');
   };
 
-  const toggleProfile = () => {
-    setShowProfile(!showProfile);
-  };
-
   if (!user) return <div className="loading">Loading...</div>;
 
   return (
     <div className="dashboard-container">
-      <header className="dashboard-header glassmorphism-header">
+      <header className="dashboard-header">
         <div className="header-left">
           <div className="logo">JSONPlaceholder Clone</div>
         </div>
-        
         <div className="header-center">
           <h1 className="welcome-message">Hello, {user.name}!</h1>
         </div>
-        
         <div className="header-right">
-          <button className="icon-btn info-btn" onClick={toggleProfile} title="Profile Info">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-            <span>Info</span>
-          </button>
-          
-          <button className="icon-btn logout-btn" onClick={handleLogout} title="Logout">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-            <span>Logout</span>
-          </button>
+          <button className="icon-btn" onClick={() => setShowProfile(true)}>Info</button>
+          <button className="icon-btn logout-btn" onClick={handleLogout}>Logout</button>
         </div>
       </header>
 
-      {/* Profile Modal */}
       {showProfile && (
-        <div className="modal-overlay" onClick={toggleProfile}>
-          <div className="modal-content glassmorphism" onClick={e => e.stopPropagation()}>
+        <div className="modal-overlay" onClick={() => setShowProfile(false)}>
+          <div className="modal-content" onClick={(event) => event.stopPropagation()}>
             <div className="modal-header">
               <h2>User Profile</h2>
-              <button className="close-btn" onClick={toggleProfile}>&times;</button>
+              <button className="close-btn" onClick={() => setShowProfile(false)}>&times;</button>
             </div>
             <div className="modal-body">
-              <div className="profile-detail">
-                <span className="detail-label">ID:</span>
-                <span className="detail-value">{user.id}</span>
-              </div>
-              <div className="profile-detail">
-                <span className="detail-label">Name:</span>
-                <span className="detail-value">{user.name}</span>
-              </div>
-              <div className="profile-detail">
-                <span className="detail-label">Username:</span>
-                <span className="detail-value">@{user.username}</span>
-              </div>
-              <div className="profile-detail">
-                <span className="detail-label">Email:</span>
-                <span className="detail-value">{user.email}</span>
-              </div>
+              <div className="profile-detail"><span className="detail-label">ID:</span><span>{user.id}</span></div>
+              <div className="profile-detail"><span className="detail-label">Name:</span><span>{user.name}</span></div>
+              <div className="profile-detail"><span className="detail-label">Username:</span><span>@{user.username}</span></div>
+              <div className="profile-detail"><span className="detail-label">Email:</span><span>{user.email}</span></div>
             </div>
           </div>
         </div>
       )}
 
       <main className="dashboard-main">
-        <div className="content-area placeholder-card glassmorphism">
-          <h2>Dashboard Content</h2>
-          <p>Placeholder for Todos/Posts</p>
-          <div className="empty-state-illustration">
-             <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
-          </div>
-        </div>
+        <nav className="resource-nav">
+          <button className={`resource-btn ${showTodos ? 'active' : ''}`} onClick={handleShowTodos}>
+            Todos
+          </button>
+        </nav>
+
+        {!showTodos ? (
+          <section className="placeholder-card">
+            <h2>Dashboard</h2>
+            <p>Choose Todos to manage your tasks.</p>
+          </section>
+        ) : (
+          <section className="todos-card">
+            <div className="todos-heading">
+              <div>
+                <h2>My Todos</h2>
+                <p>{todos.length} task{todos.length === 1 ? '' : 's'}, sorted by ID</p>
+              </div>
+              <button className="secondary-btn" onClick={() => loadTodos()}>Refresh</button>
+            </div>
+
+            <form className="add-todo-form" onSubmit={handleAddTodo}>
+              <input
+                value={newTitle}
+                onChange={(event) => setNewTitle(event.target.value)}
+                placeholder="Add a new todo"
+                maxLength="255"
+                required
+              />
+              <button className="primary-action" type="submit">Add Todo</button>
+            </form>
+
+            {error && <div className="todo-error">{error}</div>}
+            {isLoading ? (
+              <p className="list-message">Loading todos...</p>
+            ) : todos.length === 0 ? (
+              <p className="list-message">No todos yet. Add your first task above.</p>
+            ) : (
+              <ul className="todo-list">
+                {todos.map((todo) => (
+                  <li className="todo-item" key={todo.id}>
+                    <input
+                      className="todo-checkbox"
+                      type="checkbox"
+                      checked={Boolean(todo.completed)}
+                      onChange={() => handleCompletedChange(todo)}
+                      aria-label={`Mark ${todo.title} as ${todo.completed ? 'incomplete' : 'completed'}`}
+                    />
+                    <span className="todo-id">#{todo.id}</span>
+                    {editingId === todo.id ? (
+                      <form className="edit-todo-form" onSubmit={(event) => handleEditTodo(event, todo.id)}>
+                        <input
+                          value={editingTitle}
+                          onChange={(event) => setEditingTitle(event.target.value)}
+                          maxLength="255"
+                          autoFocus
+                          required
+                        />
+                        <button className="small-btn save-btn" type="submit">Save</button>
+                        <button className="small-btn" type="button" onClick={() => setEditingId(null)}>Cancel</button>
+                      </form>
+                    ) : (
+                      <>
+                        <span className={`todo-title ${todo.completed ? 'completed' : ''}`}>{todo.title}</span>
+                        <div className="todo-actions">
+                          <button className="small-btn" onClick={() => startEditing(todo)}>Edit</button>
+                          <button className="small-btn delete-btn" onClick={() => handleDeleteTodo(todo.id)}>Delete</button>
+                        </div>
+                      </>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        )}
       </main>
     </div>
   );

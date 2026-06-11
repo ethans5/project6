@@ -1,225 +1,303 @@
 .dashboard-container {
   min-height: 100vh;
   background: #f8fafc;
-  display: flex;
-  flex-direction: column;
+  color: #0f172a;
 }
 
 .dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 24px;
   height: 70px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.logo {
-  font-weight: 700;
-  font-size: 18px;
-  color: #1e293b;
-  letter-spacing: -0.5px;
-}
-
-.welcome-message {
-  font-size: 16px;
-  font-weight: 500;
-  color: #334155;
-  margin: 0;
+.header-left,
+.header-right {
+  flex: 1;
 }
 
 .header-right {
   display: flex;
-  gap: 12px;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
-.icon-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  background: white;
-  color: #475569;
-  font-size: 14px;
+.logo {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.welcome-message {
+  margin: 0;
+  font-size: 16px;
   font-weight: 500;
+}
+
+.icon-btn,
+.resource-btn,
+.secondary-btn,
+.small-btn,
+.primary-action {
+  padding: 8px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: white;
+  color: #334155;
+  font: inherit;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.icon-btn:hover {
+.icon-btn:hover,
+.secondary-btn:hover,
+.small-btn:hover {
   background: #f1f5f9;
-  color: #0f172a;
 }
 
-.info-btn:hover {
-  color: #3b82f6;
-  border-color: #bfdbfe;
-  background: #eff6ff;
-}
-
-.logout-btn:hover {
-  color: #ef4444;
+.logout-btn:hover,
+.delete-btn:hover {
   border-color: #fecaca;
   background: #fef2f2;
+  color: #dc2626;
 }
 
-/* Dashboard Main */
 .dashboard-main {
-  flex: 1;
-  padding: 32px 24px;
-  max-width: 1200px;
+  width: min(100% - 32px, 1000px);
   margin: 0 auto;
-  width: 100%;
+  padding: 32px 0;
+}
+
+.resource-nav {
+  margin-bottom: 18px;
+}
+
+.resource-btn {
+  min-width: 110px;
+  font-weight: 600;
+}
+
+.resource-btn.active,
+.primary-action,
+.save-btn {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: white;
+}
+
+.placeholder-card,
+.todos-card {
+  padding: 28px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
 .placeholder-card {
-  background: white;
-  border-radius: 12px;
-  padding: 40px;
+  min-height: 300px;
+  display: grid;
+  place-content: center;
   text-align: center;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  border: 1px dashed #cbd5e1;
-  min-height: 400px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 
-.placeholder-card h2 {
-  margin: 0 0 8px 0;
-  color: #1e293b;
+.placeholder-card h2,
+.todos-heading h2 {
+  margin: 0;
 }
 
-.placeholder-card p {
+.placeholder-card p,
+.todos-heading p {
+  margin: 7px 0 0;
   color: #64748b;
-  margin: 0 0 24px 0;
 }
 
-.empty-state-illustration {
-  opacity: 0.5;
-  margin-top: 20px;
+.todos-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-/* Modal */
+.add-todo-form {
+  display: flex;
+  gap: 10px;
+  margin: 24px 0;
+}
+
+.add-todo-form input,
+.edit-todo-form input {
+  min-width: 0;
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.todo-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.todo-item {
+  min-height: 54px;
+  padding: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.todo-item:last-child {
+  border-bottom: 0;
+}
+
+.todo-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #2563eb;
+  cursor: pointer;
+}
+
+.todo-id {
+  width: 48px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.todo-title {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.todo-title.completed {
+  color: #94a3b8;
+  text-decoration: line-through;
+}
+
+.todo-actions,
+.edit-todo-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-todo-form {
+  min-width: 0;
+  flex: 1;
+}
+
+.small-btn {
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.todo-error {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.list-message {
+  padding: 30px 0;
+  color: #64748b;
+  text-align: center;
+}
+
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(15, 23, 42, 0.4);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-  animation: fadeIn 0.2s ease;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.45);
 }
 
 .modal-content {
-  background: white;
-  width: 100%;
-  max-width: 400px;
-  border-radius: 16px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: min(100%, 400px);
   overflow: hidden;
-  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 14px;
+  background: white;
 }
 
 .modal-header {
+  padding: 18px 22px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid #f1f5f9;
+  justify-content: space-between;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .modal-header h2 {
   margin: 0;
   font-size: 18px;
-  color: #0f172a;
 }
 
 .close-btn {
-  background: none;
-  border: none;
+  border: 0;
+  background: transparent;
+  color: #64748b;
   font-size: 24px;
-  color: #94a3b8;
   cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  transition: color 0.2s;
-}
-
-.close-btn:hover {
-  color: #0f172a;
 }
 
 .modal-body {
-  padding: 24px;
+  padding: 22px;
 }
 
 .profile-detail {
+  padding: 10px 0;
   display: flex;
-  margin-bottom: 16px;
-  padding-bottom: 16px;
+  gap: 16px;
   border-bottom: 1px solid #f1f5f9;
 }
 
-.profile-detail:last-child {
-  margin-bottom: 0;
-  padding-bottom: 0;
-  border-bottom: none;
-}
-
 .detail-label {
-  width: 100px;
-  font-weight: 500;
+  width: 90px;
   color: #64748b;
-  font-size: 14px;
 }
 
-.detail-value {
-  color: #0f172a;
-  font-weight: 500;
-  flex: 1;
-}
+@media (max-width: 700px) {
+  .dashboard-header {
+    height: auto;
+    padding: 14px 16px;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+  .header-left,
+  .header-right {
+    flex: auto;
+  }
 
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+  .header-center {
+    order: 3;
+    width: 100%;
+  }
 
-/* Make it dark mode if system prefers */
-@media (prefers-color-scheme: dark) {
-  .dashboard-container { background: #0f172a; }
-  .dashboard-header { background: #1e293b; border-bottom: 1px solid #334155; box-shadow: none; }
-  .logo, .welcome-message { color: #f8fafc; }
-  .icon-btn { background: #1e293b; border-color: #334155; color: #cbd5e1; }
-  .icon-btn:hover { background: #334155; color: #f8fafc; }
-  .info-btn:hover { border-color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
-  .logout-btn:hover { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
-  
-  .placeholder-card { background: #1e293b; border-color: #334155; }
-  .placeholder-card h2 { color: #f8fafc; }
-  .placeholder-card p { color: #94a3b8; }
-  
-  .modal-content { background: #1e293b; border: 1px solid #334155; }
-  .modal-header { border-bottom-color: #334155; }
-  .modal-header h2 { color: #f8fafc; }
-  .profile-detail { border-bottom-color: #334155; }
-  .detail-label { color: #94a3b8; }
-  .detail-value { color: #f8fafc; }
+  .add-todo-form,
+  .todo-item {
+    align-items: stretch;
+  }
+
+  .todo-item {
+    flex-wrap: wrap;
+  }
+
+  .todo-title {
+    flex-basis: calc(100% - 90px);
+  }
+
+  .todo-actions,
+  .edit-todo-form {
+    width: 100%;
+    margin-left: 30px;
+  }
 }
