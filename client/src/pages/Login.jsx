@@ -35,7 +35,7 @@ const Login = () => {
       const userToStore = data.data || data; 
 
       localStorage.setItem('currentUser', JSON.stringify(userToStore));
-      navigate('/dashboard');
+      navigate(`/users/${userToStore.username}/dashboard`);
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {

@@ -1,4 +1,54 @@
-const createCrudController = require('./createCrudController');
 const commentsService = require('../services/commentsService');
 
-module.exports = createCrudController(commentsService);
+async function getAll(req, res, next) {
+  try {
+    const data = await commentsService.getAll(req.query);
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function getById(req, res, next) {
+  try {
+    const data = await commentsService.getById(req.params.id);
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function create(req, res, next) {
+  try {
+    const data = await commentsService.create(req.body);
+    res.status(201).json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function update(req, res, next) {
+  try {
+    const data = await commentsService.update(req.params.id, req.body);
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function remove(req, res, next) {
+  try {
+    const data = await commentsService.remove(req.params.id, req.body);
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = {
+  getAll,
+  getById,
+  create,
+  update,
+  remove
+};

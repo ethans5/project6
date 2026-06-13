@@ -1,0 +1,370 @@
+/* ======================== */
+/*  Posts Card               */
+/* ======================== */
+
+.posts-card {
+  padding: 28px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.posts-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.posts-heading h2 {
+  margin: 0;
+}
+
+.posts-heading p {
+  margin: 7px 0 0;
+  color: #64748b;
+}
+
+/* ======================== */
+/*  Create Post Form         */
+/* ======================== */
+
+.add-post-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 24px 0;
+}
+
+.add-post-form input,
+.add-post-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+  resize: vertical;
+}
+
+.add-post-form input:focus,
+.add-post-form textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.add-post-form .primary-action {
+  align-self: flex-end;
+}
+
+/* ======================== */
+/*  Error                    */
+/* ======================== */
+
+.post-error {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 14px;
+}
+
+/* ======================== */
+/*  Posts List               */
+/* ======================== */
+
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ======================== */
+/*  Post Item                */
+/* ======================== */
+
+.post-item {
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fafbfc;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.post-item:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.post-id {
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.post-author {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.post-owner-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #bfdbfe;
+}
+
+.post-title {
+  margin: 0 0 8px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.4;
+}
+
+.post-body {
+  margin: 0;
+  color: #475569;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* ======================== */
+/*  Post Footer / Actions    */
+/* ======================== */
+
+.post-footer {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.post-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.comments-toggle.active {
+  border-color: #2563eb;
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+/* ======================== */
+/*  Edit Post Form           */
+/* ======================== */
+
+.edit-post-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.edit-post-title,
+.edit-post-body {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+  resize: vertical;
+}
+
+.edit-post-title:focus,
+.edit-post-body:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.edit-post-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* ======================== */
+/*  Comments Section         */
+/* ======================== */
+
+.comments-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.comments-title {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
+}
+
+/* ======================== */
+/*  Add Comment Form         */
+/* ======================== */
+
+.add-comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.add-comment-form input,
+.add-comment-form textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.add-comment-form input:focus,
+.add-comment-form textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.add-comment-form .primary-action {
+  align-self: flex-end;
+}
+
+/* ======================== */
+/*  Comments List            */
+/* ======================== */
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ======================== */
+/*  Comment Item             */
+/* ======================== */
+
+.comment-item {
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: white;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.comment-author {
+  font-weight: 600;
+  font-size: 14px;
+  color: #1e293b;
+}
+
+.comment-email {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.comment-body {
+  margin: 0;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.comment-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+/* ======================== */
+/*  Edit Comment Form        */
+/* ======================== */
+
+.edit-comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.edit-comment-form textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.edit-comment-form textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.edit-comment-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* ======================== */
+/*  Responsive               */
+/* ======================== */
+
+@media (max-width: 700px) {
+  .posts-card {
+    padding: 18px;
+  }
+
+  .post-item {
+    padding: 14px;
+  }
+
+  .post-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .post-actions {
+    justify-content: flex-end;
+  }
+
+  .comment-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+}

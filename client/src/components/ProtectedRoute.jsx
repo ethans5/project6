@@ -1,10 +1,17 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
-  const currentUser = localStorage.getItem('currentUser');
+  const currentUserStr = localStorage.getItem('currentUser');
+  const { username } = useParams();
   
-  if (!currentUser) {
+  if (!currentUserStr) {
     return <Navigate to="/login" replace />;
+  }
+
+  const currentUser = JSON.parse(currentUserStr);
+
+  if (username && currentUser.username !== username) {
+    return <Navigate to={`/users/${currentUser.username}/dashboard`} replace />;
   }
 
   return children;

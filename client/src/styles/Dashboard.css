@@ -70,12 +70,15 @@
 }
 
 .resource-nav {
+  display: flex;
+  gap: 10px;
   margin-bottom: 18px;
 }
 
 .resource-btn {
   min-width: 110px;
   font-weight: 600;
+  text-decoration: none;
 }
 
 .resource-btn.active,
