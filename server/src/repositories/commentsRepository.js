@@ -1,6 +1,6 @@
 const db = require('../config/db');
 
-const columns = 'id, post_id, name, email, body, created_at';
+const columns = 'id, post_id, username, email, body, created_at';
 
 async function findAll(filters = {}) {
   const conditions = [];
@@ -32,8 +32,8 @@ async function findById(id) {
 
 async function create(data) {
   const [result] = await db.execute(
-    'INSERT INTO comments (post_id, name, email, body) VALUES (?, ?, ?, ?)',
-    [data.post_id, data.name, data.email, data.body ?? '']
+    'INSERT INTO comments (post_id, username, email, body) VALUES (?, ?, ?, ?)',
+    [data.post_id, data.username, data.email, data.body ?? '']
   );
   return findById(result.insertId);
 }

@@ -23,7 +23,7 @@ const CommentItem = ({ comment, visualId, user, onUpdate, onDelete }) => {
     <div className="comment-item">
       <div className="comment-header">
         <span className="comment-id" style={{ marginRight: '8px', color: '#64748b', fontSize: '13px' }}>#{visualId} :</span>
-        <span className="comment-author">@{comment.name}</span>
+        <span className="comment-author">@{comment.username}</span>
       </div>
 
       {isEditing ? (

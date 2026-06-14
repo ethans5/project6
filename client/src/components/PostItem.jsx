@@ -78,7 +78,7 @@ const PostItem = ({ post, visualId, user, onUpdate, onDelete }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           post_id: post.id,
-          name: user.username,
+          username: user.username,
           email: user.email,
           body: newCommentBody
         })

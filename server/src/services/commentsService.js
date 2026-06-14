@@ -9,7 +9,7 @@ const {
 
 const createRules = {
   post_id: positiveIntegerRule({ required: true }),
-  name: stringRule({ required: true, maxLength: 100 }),
+  username: stringRule({ required: true, maxLength: 50 }),
   email: stringRule({ required: true, maxLength: 100 }),
   body: stringRule({ allowEmpty: true })
 };
