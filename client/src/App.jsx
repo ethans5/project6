@@ -6,6 +6,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import TodosList from './components/TodosList';
 import PostsList from './components/PostsList';
+import AlbumsList from './components/AlbumsList';
 import DashboardHome from './components/DashboardHome';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
           <Route path="dashboard" element={<DashboardHome />} />
           <Route path="todos" element={<TodosList />} />
           <Route path="posts" element={<PostsList />} />
+          <Route path="albums" element={<AlbumsList />} />
         </Route>
 
         {/* Catch-all to fallback */}

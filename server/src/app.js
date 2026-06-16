@@ -6,6 +6,8 @@ const adminRoutes = require('./routes/adminRoutes');
 const postsRoutes = require('./routes/postsRoutes');
 const commentsRoutes = require('./routes/commentsRoutes');
 const todosRoutes = require('./routes/todosRoutes');
+const albumsRoutes = require('./routes/albumsRoutes');
+const photosRoutes = require('./routes/photosRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -22,7 +24,7 @@ app.get('/', (req, res) => {
     success: true,
     data: {
       message: 'JSONPlaceholder Clone API',
-      resources: ['/users', '/posts', '/comments', '/todos']
+      resources: ['/users', '/posts', '/comments', '/todos', '/albums', '/photos']
     }
   });
 });
@@ -32,6 +34,8 @@ app.use('/admin', adminRoutes);
 app.use('/posts', postsRoutes);
 app.use('/comments', commentsRoutes);
 app.use('/todos', todosRoutes);
+app.use('/albums', albumsRoutes);
+app.use('/photos', photosRoutes);
 
 app.post('/register', authController.register);
 app.post('/login', authController.login);

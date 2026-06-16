@@ -200,12 +200,14 @@ const Dashboard = () => {
 
       <main className="dashboard-main">
         <nav className="resource-nav">
-          {/* Using end or specific styles for DashboardHome might not be necessary if we just link to todos and posts */}
           <NavLink to={`/users/${user.username}/todos`} className={({ isActive }) => `resource-btn ${isActive ? 'active' : ''}`}>
             Todos
           </NavLink>
           <NavLink to={`/users/${user.username}/posts`} className={({ isActive }) => `resource-btn ${isActive ? 'active' : ''}`}>
             Posts
+          </NavLink>
+          <NavLink to={`/users/${user.username}/albums`} className={({ isActive }) => `resource-btn ${isActive ? 'active' : ''}`}>
+            Albums
           </NavLink>
         </nav>
 

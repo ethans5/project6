@@ -212,7 +212,9 @@ const AdminDashboard = () => {
         ['Blocked', summary.blockedUsers],
         ['Posts', summary.totalPosts],
         ['Todos', summary.totalTodos],
-        ['Comments', summary.totalComments]
+        ['Comments', summary.totalComments],
+        ['Albums', summary.totalAlbums],
+        ['Photos', summary.totalPhotos]
       ]
     : [];
 
