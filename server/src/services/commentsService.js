@@ -6,6 +6,12 @@ const {
   stringRule,
   positiveIntegerRule
 } = require('../utils/validation');
+const {
+  parseListQuery,
+  parsePositiveInteger,
+  parseString
+} = require('../utils/query');
+const auditService = require('./auditService');
 
 const createRules = {
   post_id: positiveIntegerRule({ required: true }),
@@ -18,25 +24,23 @@ const updateRules = {
   body: stringRule({ allowEmpty: true })
 };
 
-function validateFilters(query) {
-  const allowedFields = ['postId'];
-  const unknownField = Object.keys(query).find(
-    (field) => !allowedFields.includes(field)
-  );
-
-  if (unknownField) {
-    throw new AppError(`Unknown query parameter: ${unknownField}`, 400);
-  }
-
-  return {
-    postId: query.postId === undefined
-      ? undefined
-      : validateId(query.postId, 'postId')
-  };
-}
-
 async function getAll(query) {
-  return commentsRepository.findAll(validateFilters(query));
+  const queryOptions = parseListQuery(query, {
+    sortFields: {
+      id: 'id',
+      postId: 'post_id',
+      username: 'username',
+      email: 'email',
+      createdAt: 'created_at'
+    },
+    filters: {
+      postId: parsePositiveInteger,
+      email: parseString,
+      username: parseString
+    }
+  });
+  const result = await commentsRepository.findAll(queryOptions);
+  return { ...result, query: queryOptions };
 }
 
 async function getById(rawId) {
@@ -50,8 +54,18 @@ async function getById(rawId) {
   return comment;
 }
 
-function create(body) {
-  return commentsRepository.create(validateBody(body, createRules, true));
+async function create(body) {
+  const data = validateBody(body, createRules, true);
+  const comment = await commentsRepository.create(data);
+
+  await auditService.record({
+    action: 'comment.created',
+    entityType: 'comment',
+    entityId: comment.id,
+    metadata: { postId: comment.post_id, username: comment.username, email: comment.email }
+  });
+
+  return comment;
 }
 
 async function update(rawId, body) {
@@ -72,6 +86,13 @@ async function update(rawId, body) {
     throw new AppError('Comment not found or you are not the owner', 403);
   }
 
+  await auditService.record({
+    action: 'comment.updated',
+    entityType: 'comment',
+    entityId: id,
+    metadata: { email, fields: Object.keys(data) }
+  });
+
   return comment;
 }
 
@@ -88,6 +109,13 @@ async function remove(rawId, body) {
   if (!removed) {
     throw new AppError('Comment not found or you are not the owner', 403);
   }
+
+  await auditService.record({
+    action: 'comment.deleted',
+    entityType: 'comment',
+    entityId: id,
+    metadata: { email }
+  });
 
   return { id };
 }

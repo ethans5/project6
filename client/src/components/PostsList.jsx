@@ -5,7 +5,10 @@ import PostItem from './PostItem';
 const API_URL = 'http://localhost:3000';
 
 async function apiRequest(path, options) {
-  const response = await fetch(`${API_URL}${path}`, options);
+  const response = await fetch(`${API_URL}${path}`, {
+    ...options,
+    credentials: 'include'
+  });
   const result = await response.json();
 
   if (!response.ok) {
@@ -39,7 +42,13 @@ const PostsList = () => {
   };
 
   useEffect(() => {
-    loadPosts();
+    const timeoutId = window.setTimeout(() => {
+      loadPosts();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+    // Initial posts load is scheduled after the user context is available.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const handleAddPost = async (event) => {

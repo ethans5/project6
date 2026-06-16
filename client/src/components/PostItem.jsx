@@ -4,7 +4,10 @@ import CommentItem from './CommentItem';
 const API_URL = 'http://localhost:3000';
 
 async function apiRequest(path, options) {
-  const response = await fetch(`${API_URL}${path}`, options);
+  const response = await fetch(`${API_URL}${path}`, {
+    ...options,
+    credentials: 'include'
+  });
   const result = await response.json();
 
   if (!response.ok) {

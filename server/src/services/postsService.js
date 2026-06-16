@@ -6,6 +6,12 @@ const {
   stringRule,
   positiveIntegerRule
 } = require('../utils/validation');
+const {
+  parseListQuery,
+  parsePositiveInteger,
+  parseString
+} = require('../utils/query');
+const auditService = require('./auditService');
 
 const createRules = {
   user_id: positiveIntegerRule({ required: true }),
@@ -18,25 +24,22 @@ const updateRules = {
   body: stringRule({ allowEmpty: true })
 };
 
-function validateFilters(query) {
-  const allowedFields = ['userId'];
-  const unknownField = Object.keys(query).find(
-    (field) => !allowedFields.includes(field)
-  );
-
-  if (unknownField) {
-    throw new AppError(`Unknown query parameter: ${unknownField}`, 400);
-  }
-
-  return {
-    userId: query.userId === undefined
-      ? undefined
-      : validateId(query.userId, 'userId')
-  };
-}
-
 async function getAll(query) {
-  return postsRepository.findAll(validateFilters(query));
+  const queryOptions = parseListQuery(query, {
+    sortFields: {
+      id: 'p.id',
+      userId: 'p.user_id',
+      title: 'p.title',
+      createdAt: 'p.created_at',
+      updatedAt: 'p.updated_at'
+    },
+    filters: {
+      userId: parsePositiveInteger,
+      title: parseString
+    }
+  });
+  const result = await postsRepository.findAll(queryOptions);
+  return { ...result, query: queryOptions };
 }
 
 async function getById(rawId) {
@@ -50,8 +53,20 @@ async function getById(rawId) {
   return post;
 }
 
-function create(body) {
-  return postsRepository.create(validateBody(body, createRules, true));
+async function create(body) {
+  const data = validateBody(body, createRules, true);
+  const post = await postsRepository.create(data);
+
+  await auditService.record({
+    actorUserId: data.user_id,
+    targetUserId: data.user_id,
+    action: 'post.created',
+    entityType: 'post',
+    entityId: post.id,
+    metadata: { title: post.title }
+  });
+
+  return post;
 }
 
 async function update(rawId, body) {
@@ -74,6 +89,15 @@ async function update(rawId, body) {
     throw new AppError('Post not found or you are not the owner', 403);
   }
 
+  await auditService.record({
+    actorUserId: userId,
+    targetUserId: userId,
+    action: 'post.updated',
+    entityType: 'post',
+    entityId: id,
+    metadata: { fields: Object.keys(data) }
+  });
+
   return post;
 }
 
@@ -90,6 +114,14 @@ async function remove(rawId, body) {
   if (!removed) {
     throw new AppError('Post not found or you are not the owner', 403);
   }
+
+  await auditService.record({
+    actorUserId: userId,
+    targetUserId: userId,
+    action: 'post.deleted',
+    entityType: 'post',
+    entityId: id
+  });
 
   return { id };
 }

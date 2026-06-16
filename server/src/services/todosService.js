@@ -7,6 +7,12 @@ const {
   positiveIntegerRule,
   booleanRule
 } = require('../utils/validation');
+const {
+  parseListQuery,
+  parsePositiveInteger,
+  parseBoolean
+} = require('../utils/query');
+const auditService = require('./auditService');
 
 const createRules = {
   userId: positiveIntegerRule({ required: true }),
@@ -19,42 +25,23 @@ const updateRules = {
   completed: booleanRule()
 };
 
-function parseCompletedFilter(value) {
-  if (value === undefined) {
-    return undefined;
-  }
-
-  if (value === 'true' || value === '1') {
-    return true;
-  }
-
-  if (value === 'false' || value === '0') {
-    return false;
-  }
-
-  throw new AppError('completed must be true or false', 400);
-}
-
-function validateFilters(query) {
-  const allowedFields = ['userId', 'completed'];
-  const unknownField = Object.keys(query).find(
-    (field) => !allowedFields.includes(field)
-  );
-
-  if (unknownField) {
-    throw new AppError(`Unknown query parameter: ${unknownField}`, 400);
-  }
-
-  return {
-    userId: query.userId === undefined
-      ? undefined
-      : validateId(query.userId, 'userId'),
-    completed: parseCompletedFilter(query.completed)
-  };
-}
-
 async function getAll(query) {
-  return todosRepository.findAll(validateFilters(query));
+  const queryOptions = parseListQuery(query, {
+    sortFields: {
+      id: 'id',
+      userId: 'user_id',
+      title: 'title',
+      completed: 'completed',
+      createdAt: 'created_at',
+      updatedAt: 'updated_at'
+    },
+    filters: {
+      userId: parsePositiveInteger,
+      completed: parseBoolean
+    }
+  });
+  const result = await todosRepository.findAll(queryOptions);
+  return { ...result, query: queryOptions };
 }
 
 async function getById(rawId) {
@@ -68,8 +55,20 @@ async function getById(rawId) {
   return todo;
 }
 
-function create(body) {
-  return todosRepository.create(validateBody(body, createRules, true));
+async function create(body) {
+  const data = validateBody(body, createRules, true);
+  const todo = await todosRepository.create(data);
+
+  await auditService.record({
+    actorUserId: data.userId,
+    targetUserId: data.userId,
+    action: 'todo.created',
+    entityType: 'todo',
+    entityId: todo.id,
+    metadata: { title: todo.title }
+  });
+
+  return todo;
 }
 
 async function update(rawId, body) {
@@ -81,6 +80,14 @@ async function update(rawId, body) {
     throw new AppError('Todo not found', 404);
   }
 
+  await auditService.record({
+    targetUserId: todo.userId,
+    action: 'todo.updated',
+    entityType: 'todo',
+    entityId: id,
+    metadata: { fields: Object.keys(data) }
+  });
+
   return todo;
 }
 
@@ -91,6 +98,12 @@ async function remove(rawId) {
   if (!removed) {
     throw new AppError('Todo not found', 404);
   }
+
+  await auditService.record({
+    action: 'todo.deleted',
+    entityType: 'todo',
+    entityId: id
+  });
 
   return { id };
 }

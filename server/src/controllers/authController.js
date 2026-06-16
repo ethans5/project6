@@ -1,5 +1,13 @@
 const bcrypt = require('bcryptjs');
 const authRepository = require('../repositories/authRepository');
+const AppError = require('../utils/AppError');
+const {
+  createSessionCookie,
+  createClearSessionCookie,
+  parseSessionCookie,
+  verifySessionToken
+} = require('../utils/authToken');
+const auditService = require('../services/auditService');
 
 async function register(req, res, next) {
   try {
@@ -19,6 +27,15 @@ async function register(req, res, next) {
     const passwordHash = await bcrypt.hash(password, salt);
 
     const newUser = await authRepository.createUserWithPassword({ name, username, email }, passwordHash);
+
+    await auditService.record({
+      actorUserId: newUser.id,
+      targetUserId: newUser.id,
+      action: 'auth.registered',
+      entityType: 'user',
+      entityId: newUser.id,
+      metadata: { username: newUser.username }
+    });
 
     // As per prompt format requirements
     res.status(201).json(newUser);
@@ -40,6 +57,10 @@ async function login(req, res, next) {
       return res.status(401).json({ success: false, message: 'Invalid username or password' });
     }
 
+    if (user.is_blocked) {
+      throw new AppError('Your account is blocked', 403);
+    }
+
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid username or password' });
@@ -47,14 +68,44 @@ async function login(req, res, next) {
 
     // Return user details without the hash
     const { password_hash, ...userWithoutPassword } = user;
-    
+
+    await auditService.record({
+      actorUserId: user.id,
+      targetUserId: user.id,
+      action: 'auth.login',
+      entityType: 'user',
+      entityId: user.id
+    });
+
+    res.setHeader('Set-Cookie', createSessionCookie(userWithoutPassword));
     res.status(200).json(userWithoutPassword);
   } catch (error) {
     next(error);
   }
 }
 
+async function logout(req, res) {
+  const payload = verifySessionToken(parseSessionCookie(req.headers.cookie));
+
+  if (payload?.sub) {
+    await auditService.record({
+      actorUserId: payload.sub,
+      targetUserId: payload.sub,
+      action: 'auth.logout',
+      entityType: 'user',
+      entityId: payload.sub
+    });
+  }
+
+  res.setHeader('Set-Cookie', createClearSessionCookie());
+  res.status(200).json({
+    success: true,
+    data: { loggedOut: true }
+  });
+}
+
 module.exports = {
   register,
-  login
+  login,
+  logout
 };

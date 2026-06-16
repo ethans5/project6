@@ -4,7 +4,10 @@ import { useOutletContext } from 'react-router-dom';
 const API_URL = 'http://localhost:3000';
 
 async function apiRequest(path, options) {
-  const response = await fetch(`${API_URL}${path}`, options);
+  const response = await fetch(`${API_URL}${path}`, {
+    ...options,
+    credentials: 'include'
+  });
   const result = await response.json();
 
   if (!response.ok) {
@@ -39,7 +42,13 @@ const TodosList = () => {
   };
 
   useEffect(() => {
-    loadTodos();
+    const timeoutId = window.setTimeout(() => {
+      loadTodos();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+    // Initial todos load is scheduled after the user context is available.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const handleAddTodo = async (event) => {

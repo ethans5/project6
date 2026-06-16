@@ -5,25 +5,40 @@ const columns = 'id, user_id AS userId, title, completed, created_at, updated_at
 async function findAll(filters = {}) {
   const conditions = [];
   const values = [];
+  const query = filters;
 
-  if (filters.userId !== undefined) {
+  if (query.filters?.userId !== undefined) {
     conditions.push('user_id = ?');
-    values.push(filters.userId);
+    values.push(query.filters.userId);
   }
 
-  if (filters.completed !== undefined) {
+  if (query.filters?.completed !== undefined) {
     conditions.push('completed = ?');
-    values.push(filters.completed);
+    values.push(query.filters.completed);
+  }
+
+  if (query.search !== undefined) {
+    conditions.push('title LIKE ?');
+    values.push(`%${query.search}%`);
   }
 
   const where = conditions.length > 0
     ? ` WHERE ${conditions.join(' AND ')}`
     : '';
-  const [rows] = await db.execute(
-    `SELECT ${columns} FROM todos${where} ORDER BY id`,
+  const [countRows] = await db.execute(
+    `SELECT COUNT(*) AS total FROM todos${where}`,
     values
   );
-  return rows;
+  const [rows] = await db.execute(
+    `SELECT ${columns} FROM todos${where}
+     ORDER BY ${query.sortColumn} ${query.order}
+     LIMIT ${query.offset}, ${query.limit}`,
+    values
+  );
+  return {
+    rows,
+    total: Number(countRows[0].total)
+  };
 }
 
 async function findById(id) {

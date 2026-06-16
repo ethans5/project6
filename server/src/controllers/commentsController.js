@@ -1,9 +1,11 @@
 const commentsService = require('../services/commentsService');
+const { setPaginationHeaders } = require('../utils/query');
 
 async function getAll(req, res, next) {
   try {
-    const data = await commentsService.getAll(req.query);
-    res.status(200).json({ success: true, data });
+    const result = await commentsService.getAll(req.query);
+    setPaginationHeaders(res, result, result.query);
+    res.status(200).json({ success: true, data: result.rows });
   } catch (error) {
     next(error);
   }

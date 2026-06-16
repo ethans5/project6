@@ -6,21 +6,41 @@ const joinUsers = 'FROM posts p JOIN users u ON p.user_id = u.id';
 async function findAll(filters = {}) {
   const conditions = [];
   const values = [];
+  const query = filters;
 
-  if (filters.userId !== undefined) {
+  if (query.filters?.userId !== undefined) {
     conditions.push('p.user_id = ?');
-    values.push(filters.userId);
+    values.push(query.filters.userId);
+  }
+
+  if (query.filters?.title !== undefined) {
+    conditions.push('p.title = ?');
+    values.push(query.filters.title);
+  }
+
+  if (query.search !== undefined) {
+    conditions.push('(p.title LIKE ? OR p.body LIKE ?)');
+    values.push(`%${query.search}%`, `%${query.search}%`);
   }
 
   const where = conditions.length > 0
     ? ` WHERE ${conditions.join(' AND ')}`
     : '';
 
-  const [rows] = await db.execute(
-    `SELECT ${columns} ${joinUsers}${where} ORDER BY p.id ASC`,
+  const [countRows] = await db.execute(
+    `SELECT COUNT(*) AS total ${joinUsers}${where}`,
     values
   );
-  return rows;
+  const [rows] = await db.execute(
+    `SELECT ${columns} ${joinUsers}${where}
+     ORDER BY ${query.sortColumn} ${query.order}
+     LIMIT ${query.offset}, ${query.limit}`,
+    values
+  );
+  return {
+    rows,
+    total: Number(countRows[0].total)
+  };
 }
 
 async function findById(id) {

@@ -3,7 +3,8 @@ const db = require('../config/db');
 async function findUserWithPassword(username) {
   // Allow login by either username or email
   const [rows] = await db.execute(
-    `SELECT u.*, p.password_hash 
+    `SELECT u.id, u.name, u.username, u.email, u.role, u.is_blocked,
+            u.blocked_at, u.blocked_by, u.updated_at, p.password_hash
      FROM users u 
      JOIN passwords p ON u.id = p.user_id 
      WHERE u.username = ? OR u.email = ?`,
@@ -32,7 +33,14 @@ async function createUserWithPassword(userData, passwordHash) {
     );
 
     await connection.commit();
-    return { id: userId, name: userData.name, username: userData.username, email: userData.email };
+    return {
+      id: userId,
+      name: userData.name,
+      username: userData.username,
+      email: userData.email,
+      role: 'user',
+      is_blocked: false
+    };
   } catch (err) {
     await connection.rollback();
     throw err;

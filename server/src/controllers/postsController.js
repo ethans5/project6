@@ -1,9 +1,11 @@
 const postsService = require('../services/postsService');
+const { setPaginationHeaders } = require('../utils/query');
 
 async function getAll(req, res, next) {
   try {
-    const data = await postsService.getAll(req.query);
-    res.status(200).json({ success: true, data });
+    const result = await postsService.getAll(req.query);
+    setPaginationHeaders(res, result, result.query);
+    res.status(200).json({ success: true, data: result.rows });
   } catch (error) {
     next(error);
   }
