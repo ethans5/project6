@@ -3,6 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import '../styles/Albums.css';
 
 const API_URL = 'http://localhost:3000';
+const PHOTOS_PER_PAGE = 20;
 
 async function apiRequest(path, options) {
   const response = await fetch(`${API_URL}${path}`, {
@@ -16,6 +17,25 @@ async function apiRequest(path, options) {
   }
 
   return result.data;
+}
+
+async function apiRequestWithPagination(path, options) {
+  const response = await fetch(`${API_URL}${path}`, {
+    ...options,
+    credentials: 'include'
+  });
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.message || 'Request failed');
+  }
+
+  return {
+    data: result.data,
+    totalCount: Number(response.headers.get('X-Total-Count') || 0),
+    page: Number(response.headers.get('X-Page') || 1),
+    totalPages: Number(response.headers.get('X-Total-Pages') || 1)
+  };
 }
 
 const emptyPhotoForm = {
@@ -37,6 +57,9 @@ const AlbumsList = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [photosLoading, setPhotosLoading] = useState(false);
   const [error, setError] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalPhotos, setTotalPhotos] = useState(0);
 
   const selectedAlbum = albums.find((album) => album.id === selectedAlbumId);
 
@@ -58,17 +81,24 @@ const AlbumsList = () => {
     }
   };
 
-  const loadPhotos = async (albumId) => {
+  const loadPhotos = async (albumId, page = 1) => {
     if (!albumId) {
       setPhotos([]);
+      setTotalPages(1);
+      setTotalPhotos(0);
       return;
     }
 
     setPhotosLoading(true);
     setError('');
     try {
-      const data = await apiRequest(`/photos?albumId=${albumId}`);
-      setPhotos(data);
+      const result = await apiRequestWithPagination(
+        `/photos?albumId=${albumId}&page=${page}&limit=${PHOTOS_PER_PAGE}`
+      );
+      setPhotos(result.data);
+      setCurrentPage(result.page);
+      setTotalPages(result.totalPages);
+      setTotalPhotos(result.totalCount);
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -87,13 +117,20 @@ const AlbumsList = () => {
   }, [user]);
 
   useEffect(() => {
+    setCurrentPage(1);
     const timeoutId = window.setTimeout(() => {
-      loadPhotos(selectedAlbumId);
+      loadPhotos(selectedAlbumId, 1);
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
     // Photos reload whenever the selected album changes.
   }, [selectedAlbumId]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    setCurrentPage(newPage);
+    loadPhotos(selectedAlbumId, newPage);
+  };
 
   const handleCreateAlbum = async (event) => {
     event.preventDefault();
@@ -151,6 +188,8 @@ const AlbumsList = () => {
       if (selectedAlbumId === albumId) {
         setSelectedAlbumId(null);
         setPhotos([]);
+        setTotalPages(1);
+        setTotalPhotos(0);
       }
     } catch (requestError) {
       setError(requestError.message);
@@ -202,7 +241,8 @@ const AlbumsList = () => {
             ...photoForm
           })
         });
-        setPhotos((prev) => [...prev, created]);
+        // Reload the current page to reflect the new photo and update pagination
+        await loadPhotos(selectedAlbumId, currentPage);
       }
 
       resetPhotoForm();
@@ -219,7 +259,9 @@ const AlbumsList = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user.id })
       });
-      setPhotos((prev) => prev.filter((photo) => photo.id !== photoId));
+      // Reload photos to update pagination counts and handle page boundary
+      const pageToLoad = photos.length === 1 && currentPage > 1 ? currentPage - 1 : currentPage;
+      await loadPhotos(selectedAlbumId, pageToLoad);
     } catch (requestError) {
       setError(requestError.message);
     }
@@ -289,7 +331,7 @@ const AlbumsList = () => {
             <div className="photos-heading">
               <div>
                 <h3>{selectedAlbum ? selectedAlbum.title : 'Photos'}</h3>
-                <p>{photos.length} photo{photos.length === 1 ? '' : 's'}</p>
+                <p>{totalPhotos} photo{totalPhotos === 1 ? '' : 's'}</p>
               </div>
             </div>
 
@@ -346,6 +388,28 @@ const AlbumsList = () => {
                     </div>
                   </article>
                 ))}
+              </div>
+            )}
+
+            {totalPages > 1 && (
+              <div className="photos-pagination">
+                <button
+                  className="small-btn"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage <= 1}
+                >
+                  ← Previous
+                </button>
+                <span className="pagination-info">
+                  Page {currentPage} / {totalPages}
+                </span>
+                <button
+                  className="small-btn"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage >= totalPages}
+                >
+                  Next →
+                </button>
               </div>
             )}
           </div>
